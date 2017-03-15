@@ -1,15 +1,22 @@
 package example
 
 import scala.scalanative._
-import scala.scalanative.native.CString
+import scala.scalanative.native.{CInt, CString}
 
 @native.link("pcap")
 @native.extern
 object pcap {
-  type pcap_pkthdr = native.CStruct4[native.CUnsignedInt,
-                                     native.CUnsignedInt,
+  type pcap_pkthdr = native.CStruct4[native.CUnsignedLong,
+                                     native.CUnsignedLong,
                                      native.CUnsignedInt,
                                      native.CUnsignedInt]
+
+  def pcap_open_live(deviceName: CString,
+                     snapLen: CInt,
+                     promisc: CInt,
+                     to_ms: CInt,
+                     errbuf: CString): native.Ptr[Unit] =
+    native.extern
 
   def pcap_open_offline(fname: CString, errbuf: CString): native.Ptr[Unit] =
     native.extern
