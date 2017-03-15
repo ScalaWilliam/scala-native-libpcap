@@ -1,12 +1,16 @@
-package example
+package com.scalawilliam.scalanative
 
-import scala.scalanative._
+import scala.scalanative.native
 import scala.scalanative.native.{CInt, CString}
 
+/**
+  * @see https://linux.die.net/man/3/pcap
+  */
 @native.link("pcap")
 @native.extern
 object pcap {
 
+  /** This is just a pointer for us, we don't care what is inside **/
   type pcap_handle = native.Ptr[Unit]
 
   type pcap_pkthdr = native.CStruct4[native.CUnsignedLong,
