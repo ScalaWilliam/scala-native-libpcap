@@ -41,7 +41,7 @@ object PcapExample {
 
     val offsetBytes = if (cooked) 2 else 0
 
-    val hasEnoughData = dataLength > PcapDestinationIpv4AddressOffset + 4
+    val hasEnoughData = dataLength > (offsetBytes + PcapDestinationIpv4AddressOffset + 4)
     if (!hasEnoughData) return
 
     /** IP version is stored in the first nibble of the target byte **/
