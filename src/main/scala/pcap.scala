@@ -6,6 +6,9 @@ import scala.scalanative.native.{CInt, CString}
 @native.link("pcap")
 @native.extern
 object pcap {
+
+  type pcap_handle = native.Ptr[Unit]
+
   type pcap_pkthdr = native.CStruct4[native.CUnsignedLong,
                                      native.CUnsignedLong,
                                      native.CUnsignedInt,
@@ -15,10 +18,10 @@ object pcap {
                      snapLen: CInt,
                      promisc: CInt,
                      to_ms: CInt,
-                     errbuf: CString): native.Ptr[Unit] =
+                     errbuf: CString): pcap_handle =
     native.extern
 
-  def pcap_open_offline(fname: CString, errbuf: CString): native.Ptr[Unit] =
+  def pcap_open_offline(fname: CString, errbuf: CString): pcap_handle =
     native.extern
 
   def pcap_next(p: native.Ptr[Unit],
