@@ -14,10 +14,10 @@ import scala.scalanative.native.{
   * This example app reads online and offline via libpcap.
   * We're assuming it's installed on your system.
   * Basic usages:
-  *   <app> live
-  *   <app> live cooked
-  *   <app> <pcap file>
-  *   <app> cooked <pcap file>
+  * <app> live
+  * <app> live cooked
+  * <app> <pcap file>
+  * <app> cooked <pcap file>
   *
   * "Cooked": "Linux Cooked Capture" happens when we read from all interfaces on a Linux box.
   * These frames have an extra 2 bytes in front of them. For more, see: https://wiki.wireshark.org/SLL
@@ -30,6 +30,7 @@ object PcapExample {
 
   /**
     * We have a separate processing function to separate out the plumbing.
+    *
     * @param data remember this is a pointer! But note that it may contain byte 0x00
     *             which is typically a string termination character - so we must pass dataLength explicitly.
     */
@@ -58,7 +59,15 @@ object PcapExample {
         .cast[Ptr[CUnsignedInt]]
       fromCString(inet.inet_ntoa(ip))
     }
-    println(s"Time: $epochSecond, $sourceIp --> $destIp, $dataLength bytes")
+    print(s"Time: $epochSecond, $sourceIp --> $destIp, $dataLength bytes: [")
+    (0 to Math.min(dataLength, 12))
+      .map { n =>
+        !(data + offsetBytes + n)
+      }
+      .foreach { v =>
+        native.stdio.printf(toCString("%02X"), v)
+      }
+    println("...]")
   }
 
   def main(args: Array[String]): Unit = {
