@@ -68,9 +68,9 @@ object PcapExample {
     println("...]")
   }
 
-  def main(args: Array[String]): Unit = Zone { zone => run(args)(zone) }
+  def main(args: Array[String]): Unit = Zone { implicit zone => run(args) }
 
-  def run(args: Array[String])(implicit zone:Zone): Unit = {
+  def run(args: Array[String])(implicit zone: Zone): Unit = {
     val cooked = args.contains("cooked")
     val live = !cooked
     val errorBuffer = native.stackalloc[Byte](256)
