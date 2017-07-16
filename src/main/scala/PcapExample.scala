@@ -72,7 +72,7 @@ object PcapExample {
 
   def run(args: Array[String])(implicit zone:Zone): Unit = {
     val cooked = args.contains("cooked")
-    val live = args.contains("live")
+    val live = !cooked
     val errorBuffer = native.stackalloc[Byte](256)
     val pcapHandle = if (live) {
       pcap.pcap_open_live(
