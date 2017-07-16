@@ -2,13 +2,7 @@
 package com.scalawilliam.scalanative
 
 import scala.scalanative.native
-import scala.scalanative.native.{
-  CString,
-  CUnsignedInt,
-  Ptr,
-  fromCString,
-  toCString
-}
+import scala.scalanative.native._
 
 /**
   * This example app reads online and offline via libpcap.
@@ -69,18 +63,40 @@ object PcapExample {
         !(data + offsetBytes + n)
       }
       .foreach { v =>
-        native.stdio.printf(toCString("%02X"), v)
+        native.stdio.printf(c"%02X", v)
       }
     println("...]")
   }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = native.Zone { implicit globalAllocZone =>
+    runExample(args)
+  }
+
+  def runExample(args: Array[String])(implicit x: native.Zone): Unit = {
     val cooked = args.contains("cooked")
     val live = args.contains("live")
+    if (args.isEmpty || (cooked && args.length == 1)) {
+      println(
+        """Usage:
+          |  test live
+          |  test cooked <filename>
+        """.stripMargin)
+      return
+    }
+
     val errorBuffer = native.stackalloc[Byte](256)
+
+
+    val ppDev = native.stackalloc[native.Ptr[pcap.pcap_if]]
+    if (pcap.pcap_findalldevs(ppDev, errorBuffer) != 0) {
+      native.stdio.perror(errorBuffer)
+    }
+    val devicename = (!(!ppDev)).name
+
+    println(s"Listening on device: ${fromCString(devicename)}")
     val pcapHandle = if (live) {
       pcap.pcap_open_live(
-        deviceName = toCString("any"),
+        deviceName = devicename,
         snapLen = Short.MaxValue,
         promisc = 0,
         to_ms = 10,
@@ -88,8 +104,10 @@ object PcapExample {
       )
     } else {
       pcap.pcap_open_offline(fname = toCString(args.last),
-                             errbuf = errorBuffer)
+        errbuf = errorBuffer)
     }
+    pcap.pcap_freealldevs(!ppDev)
+
     if (pcapHandle == null) {
       println(s"Failed to open reader: ${fromCString(errorBuffer)}")
       sys.exit(1)
