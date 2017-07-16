@@ -2,13 +2,7 @@
 package com.scalawilliam.scalanative
 
 import scala.scalanative.native
-import scala.scalanative.native.{
-  CString,
-  CUnsignedInt,
-  Ptr,
-  fromCString,
-  toCString
-}
+import scala.scalanative.native._
 
 /**
   * This example app reads online and offline via libpcap.
@@ -69,12 +63,14 @@ object PcapExample {
         !(data + offsetBytes + n)
       }
       .foreach { v =>
-        native.stdio.printf(toCString("%02X"), v)
+        native.stdio.printf(c"%02X", v)
       }
     println("...]")
   }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = Zone { zone => run(args)(zone) }
+
+  def run(args: Array[String])(implicit zone:Zone): Unit = {
     val cooked = args.contains("cooked")
     val live = args.contains("live")
     val errorBuffer = native.stackalloc[Byte](256)
