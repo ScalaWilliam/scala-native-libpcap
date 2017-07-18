@@ -81,7 +81,7 @@ object PcapExample {
     val errorBuffer = native.stackalloc[Byte](256)
     val pcapHandle = if (live) {
       pcap.pcap_open_live(
-        deviceName = toCString("any"),
+        deviceName = c"any",
         snapLen = Short.MaxValue,
         promisc = 0,
         to_ms = 10,
